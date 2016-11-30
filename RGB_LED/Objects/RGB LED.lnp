@@ -1,0 +1,10 @@
+--cpu Cortex-M3
+".\objects\core_cm3_constant.o"
+".\objects\stm32l1xx_constants.o"
+".\objects\startup_stm32l1xx_md.o"
+".\objects\stm32l1xx_tim_constants.o"
+".\objects\main.o"
+--strict --scatter ".\Objects\RGB LED.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\RGB LED.map" -o ".\Objects\RGB LED.axf"
