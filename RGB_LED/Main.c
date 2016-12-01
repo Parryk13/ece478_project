@@ -1,6 +1,6 @@
 #include "stm32l1xx.h"
 #include "core_cm3.h"
-#define led 8
+#define led 4
 #define kd 0
 #define kp 1
 #define ki 0
@@ -25,14 +25,14 @@ int main(){
 	uint8_t color_set[led][3];
 	HSI();
 	GPIOC_Setup();
-	place_color(color_set,0x0,0x1,0x1,0x1);
-	place_color(color_set,0x1,1,1,1);
-	place_color(color_set,2,0x1,0x0,0x1);
-	place_color(color_set,3,0x1,0x0,0x1);
-	place_color(color_set,4,0x3,0x1,0x8);
-	place_color(color_set,5,0x5,0x0,0x1);
-	place_color(color_set,6,1,0,7);
-	place_color(color_set,7,1,0,0);
+	place_color(color_set,0,0x50,0x1,0x1);
+	place_color(color_set,1,1,50,1);
+	place_color(color_set,2,0x1,0x0,0x50);
+	place_color(color_set,3,0x50,0x50,0x50);
+	//place_color(color_set,4,0x3,0x1,0x8);
+	//place_color(color_set,5,0x5,0x0,0x1);
+	//place_color(color_set,6,1,0,7);
+	//place_color(color_set,7,1,0,0);
 	color(color_set);
 
 

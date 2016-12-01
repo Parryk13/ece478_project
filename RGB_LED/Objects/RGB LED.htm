@@ -3,9 +3,9 @@
 <title>Static Call Graph - [.\Objects\RGB LED.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\RGB LED.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060061: Last Updated: Wed Nov 30 13:36:56 2016
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060061: Last Updated: Thu Dec 01 12:50:52 2016
 <BR><P>
-<H3>Maximum Stack Usage =         44 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
+<H3>Maximum Stack Usage =         32 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
 __rt_entry_main &rArr; main &rArr; place_color
 <P>
@@ -204,7 +204,7 @@ Global Symbols
 <P><STRONG><a name="[74]"></a>__rt_entry_postsh_1</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$00000009))
 
 <P><STRONG><a name="[44]"></a>__rt_entry_main</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, __rtentry2.o(.ARM.Collect$$rtentry$$0000000D))
-<BR><BR>[Stack]<UL><LI>Max Depth = 44 + Unknown Stack Size
+<BR><BR>[Stack]<UL><LI>Max Depth = 32 + Unknown Stack Size
 <LI>Call Chain = __rt_entry_main &rArr; main &rArr; place_color
 </UL>
 <BR>[Calls]<UL><LI><a href="#[46]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;exit
@@ -494,8 +494,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[45]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[45]"></a>main</STRONG> (Thumb, 152 bytes, Stack size 32 bytes, main.o(i.main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 44<LI>Call Chain = main &rArr; place_color
+<P><STRONG><a name="[45]"></a>main</STRONG> (Thumb, 86 bytes, Stack size 20 bytes, main.o(i.main))
+<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = main &rArr; place_color
 </UL>
 <BR>[Calls]<UL><LI><a href="#[53]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;place_color
 <LI><a href="#[4e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;color
