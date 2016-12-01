@@ -20,6 +20,7 @@ void place_color(uint8_t color[led][3],int leds,uint8_t green,uint8_t red,uint8_
 void ADC1_IRQHandler(void);
 void adc_setup(void);
 int result;
+
 int main(){
 	uint8_t color_set[led][3];
 	HSI();
@@ -33,6 +34,9 @@ int main(){
 	place_color(color_set,6,1,0,7);
 	place_color(color_set,7,1,0,0);
 	color(color_set);
+
+
+
 	/*while(1){
 		Light();
 		//ColorSame(16,30,0);
@@ -108,6 +112,44 @@ void ADC1_IRQHandler(void){
 	}
 }
 void adc_setup(void){
+	/* ADC STUFFFFFFFFFFFFFFFFFFF */
+	RCC->CR |= RCC_CR_HSION;	// Turn on HSI (16 MHz)
+	while ((RCC->CR & RCC_CR_HSIRDY) == 0);	// Wait until HIS is ready
+	RCC->CFGR &= ~RCC_CFGR_SW_HSI;	// Select HSI as system clock
+	RCC->CFGR |= RCC_CFGR_SW_HSI;
+	while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_HSI);	// Wait for HSI ready
+
+	RCC->AHBENR |= (RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN);	// Enables clock for GPIO port C and D
+	GPIOB->MODER |= (GPIO_MODER_MODER6_0 | GPIO_MODER_MODER15);	// Configures PB.6 as output and PB.15 as analog mode
+	GPIOC->MODER |= GPIO_MODER_MODER0;		// Configures PC.0 as analog mode
+	GPIOD->MODER |= GPIO_MODER_MODER2_0;	// Configures PD.2 as output
+
+
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;	// Enables ADC clock
+
+	ADC1->CR2 &= ~(ADC_CR2_ADON);	// Clears ADON bit of CR, turning off ADC conversion
+
+	ADC1->SQR1 &= ~(ADC_SQR1_L);	// Clears bits of L in SQR1 register
+	ADC1->SQR5 = 0;	// Sets channel 10 or 21 as the 1st conversion in regular sequence
+					//ADC1->SQR5 |= 10;
+	ADC1->SQR5 |= 21;
+	//ADC1->SMPR2 |= ADC_SMPR2_SMP10_1;	// Configures the sample time register for channel 10
+
+	ADC1->SMPR1 |= ADC_SMPR1_SMP21_1;	// Configures the sample time register for channel 21
+	ADC1->CR1 |= ADC_CR1_EOCIE;	// Enables end of conversion interrupt
+	ADC1->CR2 |= ADC_CR2_CONT;	// Enables continuous conversion mode
+	ADC1->CR2 |= ADC_CR2_DELS_0;	// Configures delay selection as delayed until the converted data has been read
+
+	NVIC_EnableIRQ(ADC1_IRQn);	// Enables the interrupt of ADC1_IRQn in NVIC
+	NVIC_SetPriority(ADC1_IRQn, 1);	// Configures the interrupt priority of ADC1_IRQn
+
+									//GPIOD->ODR |= GPIO_OTYPER_ODR_2;	// Enables output of PD.2, turning on infrared emitter
+
+	ADC1->CR2 |= ADC_CR2_ADON;	// Turns on ADC conversion
+
+	ADC1->CR2 |= ADC_CR2_SWSTART;	// Starts the conversion
+	
+	/* OLD SETUP
 	RCC->APB2ENR|=RCC_APB2ENR_ADC1EN; //enable adc clock
 	RCC->ICSCR |= RCC_ICSCR_MSIRANGE_6;     //Set Clock for 4.194 MHz
 	ADC1->CR2&=~ADC_CR2_ADON; //turn off adc
@@ -121,6 +163,8 @@ void adc_setup(void){
 	NVIC->IP[ADC1_IRQn] = 0;
 	ADC1->CR2|=ADC_CR2_ADON;
 	ADC1->CR2|=ADC_CR2_SWSTART;
+	*/
+
 }
 uint8_t PID_SET(int adc_input){ //error[0] is current error, error[1] is current Derror
                                       //error[2] is current Ierror,error[3] is previous error
