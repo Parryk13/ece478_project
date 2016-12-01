@@ -1,6 +1,10 @@
 #include "stm32l1xx.h"
 #include "core_cm3.h"
 #define led 8
+#define kd 0
+#define kp 1
+#define ki 0
+#define desired 50
 void HSI(void);
 void GPIOC_Setup(void);
 void uno(void);
@@ -16,7 +20,7 @@ void place_color(uint8_t color[led][3],int leds,uint8_t green,uint8_t red,uint8_
 void ADC1_IRQHandler(void);
 void adc_setup(void);
 int result;
-int main(){	
+int main(){
 	uint8_t color_set[led][3];
 	HSI();
 	GPIOC_Setup();
@@ -53,7 +57,7 @@ void place_color(uint8_t color[led][3],int leds,uint8_t green,uint8_t red,uint8_
 	color[leds][0]=green;
 	color[leds][1]=red;
 	color[leds][2]=blue;
-	
+
 }
 
 void GPIOC_Setup(){
@@ -62,7 +66,7 @@ void GPIOC_Setup(){
 	GPIOC->OTYPER  &= ~GPIO_OTYPER_OT_13;		   //Set as Push-Pull
 	GPIOC->PUPDR 	 &= ~GPIO_PUPDR_PUPDR13;     //Set as No PUPD
 	GPIOC->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR13; //Set Output Speed
-	
+
 	RCC->AHBENR    |= RCC_AHBENR_GPIOAEN;
 	GPIOA->MODER   &= ~GPIO_MODER_MODER0_1;
 	GPIOA->OTYPER  &= ~GPIO_OTYPER_OT_0;
@@ -78,7 +82,7 @@ void HSI(void){
 }
 void uno(void){
 	//Output One to LED's
-	GPIOC->ODR |= 1<<13; 
+	GPIOC->ODR |= 1<<13;
 	GPIOC->ODR |= 1<<13;
 	GPIOC->ODR &= ~(1<<13);
 }
@@ -99,20 +103,40 @@ void ADC1_IRQHandler(void){
 	}
 	else
 	if(ADC1->SR & ADC_SR_JEOC){
-		
+
 		ADC1->SR &= ~(ADC_SR_JEOC);
 	}
 }
 void adc_setup(void){
 	RCC->APB2ENR|=RCC_APB2ENR_ADC1EN; //enable adc clock
+	RCC->ICSCR |= RCC_ICSCR_MSIRANGE_6;     //Set Clock for 4.194 MHz
 	ADC1->CR2&=~ADC_CR2_ADON; //turn off adc
 	ADC1->SQR1&=~ADC_SQR1_L; //set rcs to 1
 	ADC1->SQR5&=~ADC_SQR5_SQ1; //set channel 10 as 1st conversion
-	ADC1->SQR5|=0x0A; 
+	ADC1->SQR5|=0x0A;
 	ADC1->SMPR2&=~ADC_SMPR2_SMP10;
 	ADC1->SMPR2|=~ADC_SMPR2_SMP10_1;
 	ADC1->CR1|=ADC_CR1_EOCIE;
 	NVIC->ISER[0]|= 1<<18;
 	NVIC->IP[ADC1_IRQn] = 0;
-	
+	ADC1->CR2|=ADC_CR2_ADON;
+	ADC1->CR2|=ADC_CR2_SWSTART;
+}
+uint8_t PID_SET(int adc_input){ //error[0] is current error, error[1] is current Derror
+                                      //error[2] is current Ierror,error[3] is previous error
+                                      //error[4] is previous Ierror
+    static float error[5] = {0,0,0,0,0};
+    static int16_t input =0;
+		uint8_t result;
+    error[0]=(desired-adc_input);
+    error[1]=((error[0]-error[3])/.0004);
+    error[2]=(error[0]+(error[4]*.0004));
+    input = (int)(error[0]*kp+error[1]*kd+error[2]*ki);
+    error[3]=error[0];
+    error[4]=error[2];
+		input=input+128;
+		if(input>255) input=255;
+		else if(input<0) input =0;
+		result = (uint8_t)input;
+		return result;
 }
